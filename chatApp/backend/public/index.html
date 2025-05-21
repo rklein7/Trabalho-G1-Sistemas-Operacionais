@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+<<<<<<< HEAD
 <head>
   <meta charset="UTF-8" />
   <title>Chat em Tempo Real</title>
@@ -205,4 +206,250 @@
     });
   </script>
 </body>
+=======
+  <head>
+    <meta charset="UTF-8" />
+    <title>Chat em Tempo Real</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f2f5;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .container {
+        width: 100%;
+        max-width: 500px;
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+      }
+      label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 6px;
+        color: #555;
+      }
+      input {
+        padding: 10px;
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 14px;
+      }
+      #messages {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 15px 0;
+        height: 250px;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        background-color: #fafafa;
+      }
+      #messages li {
+        padding: 10px;
+        border-bottom: 1px solid #eee;
+        font-size: 14px;
+        color: #333;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #messages li.self {
+        background-color: #e6ffed;
+        font-weight: bold;
+      }
+      .actions {
+        display: flex;
+        gap: 5px;
+      }
+      .action-btn {
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        background: none;
+        padding: 0 5px;
+      }
+      .delete-btn {
+        color: #c0392b;
+      }
+      .delete-btn:hover {
+        color: #e74c3c;
+      }
+      .edit-btn {
+        color: #2980b9;
+      }
+      .edit-btn:hover {
+        color: #3498db;
+      }
+
+      #chat {
+        display: flex;
+        gap: 10px;
+      }
+      #messageInput {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+      button {
+        padding: 10px 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      @media (max-width: 600px) {
+        .container {
+          padding: 15px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Chat em Tempo Real</h1>
+      <div>
+        <label>Seu nome:</label>
+        <input id="username" placeholder="Digite seu nome" />
+      </div>
+      <ul id="messages"></ul>
+      <div id="chat">
+        <input id="messageInput" placeholder="Digite sua mensagem" />
+        <button onclick="sendMessage()">Enviar</button>
+      </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+      const usernameInput = document.getElementById("username");
+      const messageInput = document.getElementById("messageInput");
+      const messagesList = document.getElementById("messages");
+
+      function getMessageId(msg) {
+        return msg._id || msg.id;
+      }
+
+      async function loadMessages() {
+        try {
+          const res = await fetch("/api/messages");
+          const messages = await res.json();
+          messagesList.innerHTML = "";
+          messages.forEach((msg) => appendMessage(msg));
+        } catch (err) {
+          alert("Erro ao carregar mensagens.");
+        }
+      }
+
+      window.onload = loadMessages;
+
+      function appendMessage(msg) {
+        const item = document.createElement("li");
+        const id = getMessageId(msg);
+        item.setAttribute("data-id", id);
+
+        const time = msg.timestamp
+          ? new Date(msg.timestamp).toLocaleTimeString()
+          : "";
+
+        const textSpan = document.createElement("span");
+        textSpan.textContent = `[${time}] ${msg.user}: ${msg.text}`;
+        textSpan.classList.add("text-span");
+
+        const actions = document.createElement("div");
+        actions.classList.add("actions");
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.classList.add("action-btn", "delete-btn");
+        deleteBtn.title = "Apagar";
+        deleteBtn.textContent = "🗑️";
+        deleteBtn.onclick = async () => {
+          const confirmDelete = confirm(
+            "Deseja realmente apagar esta mensagem?"
+          );
+          if (!confirmDelete) return;
+          const res = await fetch(`/api/messages/${id}`, { method: "DELETE" });
+          if (res.ok) {
+            item.remove();
+          } else {
+            alert("Erro ao deletar.");
+          }
+        };
+
+        const editBtn = document.createElement("button");
+        editBtn.classList.add("action-btn", "edit-btn");
+        editBtn.title = "Editar";
+        editBtn.textContent = "✏️";
+        editBtn.onclick = async () => {
+          const newText = prompt("Editar mensagem:", msg.text);
+          if (!newText || newText.trim() === msg.text) return;
+          const res = await fetch(`/api/messages/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: newText.trim() }),
+          });
+          if (!res.ok) return alert("Erro ao editar.");
+        };
+
+        actions.appendChild(editBtn);
+        actions.appendChild(deleteBtn);
+
+        item.appendChild(textSpan);
+        item.appendChild(actions);
+        messagesList.appendChild(item);
+        messagesList.scrollTop = messagesList.scrollHeight;
+      }
+
+      function sendMessage() {
+        const user = usernameInput.value.trim();
+        const text = messageInput.value.trim();
+        if (user && text) {
+          socket.emit("chat message", { user, text });
+          messageInput.value = "";
+        }
+      }
+
+      socket.on("chat message", (msg) => {
+        appendMessage(msg);
+      });
+
+      socket.on("edit message", (msg) => {
+        const id = getMessageId(msg);
+        const item = document.querySelector(`[data-id="${id}"]`);
+        if (item) {
+          const textSpan = item.querySelector(".text-span");
+          const time = msg.timestamp
+            ? new Date(msg.timestamp).toLocaleTimeString()
+            : "";
+          textSpan.textContent = `[${time}] ${msg.user}: ${msg.text}`;
+        }
+      });
+
+      socket.on("clear messages", () => {
+        messagesList.innerHTML = "";
+      });
+    </script>
+  </body>
+>>>>>>> a06146a (feat: Troca de banco para MariaDB e ajuste no CRUD)
 </html>

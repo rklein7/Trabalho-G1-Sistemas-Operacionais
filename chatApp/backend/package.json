@@ -3,9 +3,18 @@
     "version": "1.0.0",
     "main": "server.js",
     "dependencies": {
+<<<<<<< HEAD
       "express": "^4.18.2",
       "socket.io": "^4.7.2",
       "mongoose": "^7.5.1"
     }
   }
   
+=======
+        "express": "^4.18.2",
+        "mariadb": "^3.4.2",
+        "mongoose": "^7.5.1",
+        "socket.io": "^4.7.2"
+    }
+}
+>>>>>>> a06146a (feat: Troca de banco para MariaDB e ajuste no CRUD)
