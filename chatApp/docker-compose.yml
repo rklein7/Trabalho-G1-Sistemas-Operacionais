@@ -1,32 +1,3 @@
-<<<<<<< HEAD
-version: '3'
-services:
-  backend:
-    build: ./backend
-    ports:
-      - "3000:3000"  # expõe para o host acessar
-    depends_on:
-      - mongo
-    environment:
-      - MONGO_URL=mongodb://mongo:27017/chatdb
-    networks:
-      - chatnet
-
-  mongo:
-    image: mongo:latest
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    networks:
-      - chatnet
-
-volumes:
-  mongo-data:
-
-networks:
-  chatnet:
-=======
 version: '3.8'  # Versão mais recente (ignorar warning é opcional)
 services:
   # Backend (Node.js)
@@ -64,4 +35,3 @@ volumes:
 networks:
   chatnet:
     driver: bridge
->>>>>>> a06146a (feat: Troca de banco para MariaDB e ajuste no CRUD)
